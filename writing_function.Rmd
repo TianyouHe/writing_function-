@@ -56,8 +56,99 @@ z_score(c(TRUE,TRUE,FALSE,TRUE))
 z_score(iris)
 ```
 
+### multiple output
+
+wroye a function that return
+```{r}
+mean_and_sd = function(x){
+  if(!is.numeric(x)){
+    stop("Argument should be numbers")
+  } else if(length(x)<2){
+    stop("You need at least 2 numbers to get z scores")
+  }
+  
+  mean_x = mean(x)
+  sd_x = sd(x)
+  
+  tibble(
+    mean = mean_x,
+    sd_x = sd(x)
+  )
+  
+  
+  
+}
+```
+
+Double check
 
 ```{r}
+mean_and_sd(x_vec)
+```
 
+### Start getting means and sds
+```{r}
+x_vec = rnorm(n=30, mean = 5, sd = .5)
+
+tibble(
+  mean = mean(x_vec),
+  sd = sd(x_vec)
+)
+```
+
+Let's write a function that uses `n`, a ture mean, and true sd as inputs
+
+```{r}
+ sim_mean_sd = function(n, mu, sigma){
+  x_vec = rnorm(n = n, mean = mu, sd = sigma)
+
+  tibble(
+    mean = mean(x_vec),
+    sd = sd(x_vec)
+)
+ }
+
+sim_mean_sd(n = 3000, mu = 5, sigma = .5)
+
+sim_mean_sd(12,24,4)
+```
+### LoTR words
+
+```{r}
+fellowship_ring = readxl::read_excel("./data/LotR_Words.xlsx", range = "B3:D6") |>
+  mutate(movie = "fellowship_ring")
+
+two_towers = readxl::read_excel("./data/LotR_Words.xlsx", range = "F3:H6") |>
+  mutate(movie = "two_towers")
+
+return_king = readxl::read_excel("./data/LotR_Words.xlsx", range = "J3:L6") |>
+  mutate(movie = "return_king")
+
+lotr_tidy = bind_rows(fellowship_ring, two_towers, return_king) |>
+  janitor::clean_names() |>
+  gather(key = sex, value = words, female:male) |>
+  mutate(race = str_to_lower(race)) |> 
+  select(movie, everything()) 
+```
+
+```{r}
+lotr_load_and_tidy = function(path, range, movie_name) {
+  
+  df = readxl::read_excel(path, range = range) |>
+    janitor::clean_names() |>
+    gather(key = sex, value = words, female:male) |>
+    mutate(race = str_to_lower(race),
+           movie = movie_name)
+  
+  df
+  
+}
+
+lotr_tidy = 
+  bind_rows(
+    lotr_load_and_tidy("data/LotR_Words.xlsx", "B3:D6", "fellowship_ring"),
+    lotr_load_and_tidy("data/LotR_Words.xlsx", "F3:H6", "two_towers"),
+    lotr_load_and_tidy("data/LotR_Words.xlsx", "J3:L6", "return_king")) |>
+  select(movie, everything()) 
 ```
 
